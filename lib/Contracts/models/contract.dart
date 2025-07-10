@@ -1,70 +1,73 @@
 import 'package:equatable/equatable.dart';
-import 'enums.dart';
-import 'milestone.dart';
+import 'package:sample1/Contracts/models/deliverable.dart';
 
 class Contract extends Equatable {
   final String id;
+  final String status;
+  final DateTime fechaInicio;
+  final DateTime? fechaFin;
+  final double? precioTotal;
+  final String? contractExplorerUrl;
+  final String clientId;
   final String developerId;
-  final String developerName;
-  final String developerPhotoUrl;
-  final DateTime createdAt;
-  final String projectTitle;
-  final String projectDescription;
-  final List<Milestone> milestones;
-  final ContractStatus status;
+  final String webServiceId;
+  final List<Deliverable> deliverables;
 
   const Contract({
     required this.id,
-    required this.developerId,
-    required this.developerName,
-    required this.developerPhotoUrl,
-    required this.createdAt,
-    required this.projectTitle,
-    required this.projectDescription,
-    required this.milestones,
     required this.status,
+    required this.fechaInicio,
+    this.fechaFin,
+    this.precioTotal,
+    this.contractExplorerUrl,
+    required this.clientId,
+    required this.developerId,
+    required this.webServiceId,
+    required this.deliverables,
   });
 
   factory Contract.fromJson(Map<String, dynamic> json) {
     return Contract(
-      id:                  json['id']                   as String,
-      developerId:         json['developerId']          as String,
-      developerName:       json['developerName']        as String?  ?? '',
-      developerPhotoUrl:   json['developerPhotoUrl']    as String?  ?? '',
-      createdAt:           DateTime.tryParse(json['createdAt'] as String? ?? '')
-          ?? DateTime.now(),
-      projectTitle:        json['projectTitle']         as String,
-      projectDescription:  json['projectDescription']   as String,
-      status:              ContractStatusX.fromString(
-          json['status'] as String? ?? ''),
-      milestones:          (json['milestones'] as List<dynamic>? ?? [])
-          .map((e) => Milestone.fromJson(e))
+      id: json['id'],
+      status: json['status'],
+      fechaInicio: DateTime.parse(json['fechaInicio']),
+      fechaFin: json['fechaFin'] != null ? DateTime.parse(json['fechaFin']) : null,
+      precioTotal: (json['precioTotal'] != null)
+          ? (json['precioTotal'] as num).toDouble()
+          : null,
+      contractExplorerUrl: json['contractExplorerUrl'],
+      clientId: json['clientId'],
+      developerId: json['developerId'],
+      webServiceId: json['webServiceId'],
+      deliverables: (json['entregables'] as List<dynamic>? ?? [])
+          .map((e) => Deliverable.fromJson(e))
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
+    'status': status,
+    'fechaInicio': fechaInicio.toIso8601String(),
+    'fechaFin': fechaFin?.toIso8601String(),
+    'precioTotal': precioTotal,
+    'contractExplorerUrl': contractExplorerUrl,
+    'clientId': clientId,
     'developerId': developerId,
-    'developerName': developerName,
-    'developerPhotoUrl': developerPhotoUrl,
-    'createdAt': createdAt.toIso8601String(),
-    'projectTitle': projectTitle,
-    'projectDescription': projectDescription,
-    'status': status.backendValue,
-    'milestones': milestones.map((m) => m.toJson()).toList(),
+    'webServiceId': webServiceId,
+    'entregables': deliverables.map((e) => e.toJson()).toList(),
   };
 
   @override
   List<Object?> get props => [
     id,
-    developerId,
-    developerName,
-    developerPhotoUrl,
-    createdAt,
-    projectTitle,
-    projectDescription,
-    milestones,
     status,
+    fechaInicio,
+    fechaFin,
+    precioTotal,
+    contractExplorerUrl,
+    clientId,
+    developerId,
+    webServiceId,
+    deliverables
   ];
 }

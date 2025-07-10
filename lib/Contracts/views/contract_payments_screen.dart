@@ -1,14 +1,15 @@
 // lib/contracts/views/contract_payments_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:file_selector/file_selector.dart';           // ← selector federado
-import '../../shared/constants/app_sizes.dart';             // ← faltaba
+import 'package:file_selector/file_selector.dart';
+import 'package:uuid/uuid.dart';
+import '../../shared/constants/app_sizes.dart';
 import '../../shared/constants/app_strings.dart';
 import '../../shared/components/primary_button.dart';
 import '../contracts_routes.dart';
 import '../models/create_contract_args.dart';
-import '../components/milestone_row.dart';
-import '../models/milestone.dart';
+import '../models/deliverable.dart';
+import '../components/DeliverableRow.dart';
 
 class ContractPaymentsScreen extends StatefulWidget {
   final CreateContractArgs args;
@@ -19,29 +20,30 @@ class ContractPaymentsScreen extends StatefulWidget {
 }
 
 class _ContractPaymentsScreenState extends State<ContractPaymentsScreen> {
-  final List<Milestone> _milestones = [];
+  final List<Deliverable> _deliverables = [];
+  final Uuid _uuid = Uuid();
   String? _pickedFilePath;
   String? _pickedFileName;
 
-  void _addMilestone() {
+  void _addDeliverable() {
     setState(() {
-      _milestones.add(
-        Milestone(
-          id: DateTime.now().toIso8601String(),
-          description: '',
-          amount: 0,
-          deadline: DateTime.now(),
+      _deliverables.add(
+        Deliverable(
+          id: _uuid.v4(),
+          titulo: '',
+          descripcion: '',
+          estado: DeliverableStatus.PENDIENTE,
+          precio: 0,
+          fechaEntregaEsperada: DateTime.now(),
         ),
       );
     });
   }
 
   double get _total =>
-      _milestones.fold<double>(0, (sum, m) => sum + m.amount);
+      _deliverables.fold<double>(0, (sum, d) => sum + (d.precio ?? 0));
 
-  /// ⇨ Nuevo: selecciona archivo con file_selector
   Future<void> _pickReferenceFile() async {
-    // Acepta cualquier tipo de archivo
     final typeGroup = XTypeGroup(label: 'todos', extensions: ['*']);
     final XFile? result = await openFile(acceptedTypeGroups: [typeGroup]);
 
@@ -55,16 +57,17 @@ class _ContractPaymentsScreenState extends State<ContractPaymentsScreen> {
 
   void _continue() {
     final reviewArgs = {
+      'clientId': widget.args.clientId,
       'developerId': widget.args.developerId,
-      'title': widget.args.title,
-      'description': widget.args.description,
+      'webServiceId': widget.args.webServiceId,
+      'contractExplorerUrl': widget.args.contractExplorerUrl,
+      'fechaInicio': widget.args.fechaInicio.toIso8601String(),
+      'fechaFin': widget.args.fechaFin.toIso8601String(),
+      'precioTotal': _total,
+      'entregables': _deliverables.map((d) => d.toJson()).toList(),
       'referenceFile': _pickedFilePath,
-      'milestones': _milestones.map((m) => {
-        'description': m.description,
-        'amount': m.amount.toString(),
-        'deadline': m.deadline.toIso8601String(),
-      }).toList(),
     };
+
     Navigator.pushNamed(
       context,
       ContractsRoutes.review,
@@ -75,64 +78,59 @@ class _ContractPaymentsScreenState extends State<ContractPaymentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-      AppBar(title: const Text(AppStrings.contractSignature)),
+      appBar: AppBar(title: const Text(AppStrings.contractSignature)),
       body: Padding(
         padding: const EdgeInsets.all(AppSizes.paddingM),
         child: Column(
           children: [
-            // Lista dinámica de hitos
             Expanded(
               child: ListView.builder(
-                itemCount: _milestones.length,
+                itemCount: _deliverables.length,
                 itemBuilder: (ctx, i) {
-                  final m = _milestones[i];
-                  return MilestoneRow(
-                    milestone: m,
+                  final d = _deliverables[i];
+                  return DeliverableRow(
+                    deliverable: d,
                     editable: true,
+                    onTitleChanged: (v) {
+                      setState(() {
+                        _deliverables[i] = d.copyWith(titulo: v);
+                      });
+                    },
                     onDescriptionChanged: (v) {
                       setState(() {
-                        _milestones[i] = m.copyWith(description: v);
+                        _deliverables[i] = d.copyWith(descripcion: v);
                       });
                     },
-                    onAmountChanged: (v) {
+                    onPriceChanged: (v) {
                       final parsed = double.tryParse(v) ?? 0;
                       setState(() {
-                        _milestones[i] = m.copyWith(amount: parsed);
+                        _deliverables[i] = d.copyWith(precio: parsed);
                       });
                     },
-                    onDeadlinePicked: (d) {
+                    onDeadlinePicked: (picked) {
                       setState(() {
-                        _milestones[i] = m.copyWith(deadline: d);
+                        _deliverables[i] =
+                            d.copyWith(fechaEntregaEsperada: picked);
                       });
                     },
                   );
                 },
               ),
             ),
-
-            // + Nuevo hito
             OutlinedButton.icon(
               icon: const Icon(Icons.add),
-              label: const Text(AppStrings.newMilestone),
-              onPressed: _addMilestone,
+              label: const Text('Agregar entregable'),
+              onPressed: _addDeliverable,
             ),
             const SizedBox(height: AppSizes.paddingS),
-
-            // Total
             Text('Total: \$${_total.toStringAsFixed(2)}'),
             const SizedBox(height: AppSizes.paddingM),
-
-            // Botón para adjuntar archivo de referencia
             PrimaryButton(
-              text: _pickedFileName ??
-                  'Adjuntar archivo de referencia',
+              text: _pickedFileName ?? 'Adjuntar archivo de referencia',
               fullWidth: false,
               onPressed: _pickReferenceFile,
             ),
             const SizedBox(height: AppSizes.paddingL),
-
-            // Botón continuar al review
             PrimaryButton(
               text: 'Revisar contrato',
               onPressed: _continue,

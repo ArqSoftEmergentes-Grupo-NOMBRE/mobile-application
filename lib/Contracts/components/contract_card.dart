@@ -5,6 +5,7 @@ import '../../shared/constants/app_strings.dart';
 import '../contracts_routes.dart';
 import '../models/contract.dart';
 import '../models/enums.dart';
+import '../models/deliverable.dart';
 
 class ContractCard extends StatelessWidget {
   final Contract contract;
@@ -26,8 +27,20 @@ class ContractCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final total = contract.milestones.fold<double>(0, (sum, m) => sum + m.amount);
-    final created = DateFormat('dd – MM – yyyy').format(contract.createdAt);
+    final total = contract.deliverables.fold<double>(
+      0,
+          (sum, d) => sum + (d.precio ?? 0),
+    );
+
+    final created = DateFormat('dd – MM – yyyy').format(contract.fechaInicio);
+
+    // Fallback temporales porque estos datos no vienen del backend
+    final developerName = 'Desarrollador'; // podrías usar contract.developerId
+    final developerPhotoUrl = 'https://via.placeholder.com/64';
+    final projectTitle = 'Proyecto Web'; // puedes poner 'Contrato #${contract.id.substring(0, 4)}'
+
+    // Convertir status string a enum
+    final statusEnum = ContractStatusX.fromString(contract.status);
 
     return Card(
       margin: const EdgeInsets.symmetric(
@@ -44,11 +57,10 @@ class ContractCard extends StatelessWidget {
             padding: const EdgeInsets.all(AppSizes.paddingM),
             child: Row(
               children: [
-                // FOTO DEL DESARROLLADOR
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
-                    contract.developerPhotoUrl,
+                    developerPhotoUrl,
                     width: 64,
                     height: 64,
                     fit: BoxFit.cover,
@@ -60,17 +72,13 @@ class ContractCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 const SizedBox(width: AppSizes.paddingM),
-
-                // DATOS Y BOTONES
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // TÍTULO
                       Text(
-                        contract.projectTitle,
+                        projectTitle,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -78,15 +86,11 @@ class ContractCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-
-                      // NOMBRE DEL DEV
                       Text(
-                        contract.developerName,
+                        developerName,
                         style: const TextStyle(color: Colors.white70),
                       ),
                       const SizedBox(height: 2),
-
-                      // FECHA DE CREACIÓN
                       Text(
                         created,
                         style: const TextStyle(
@@ -95,8 +99,6 @@ class ContractCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-
-                      // BOTONES, envueltos para que no overflow
                       Row(
                         children: [
                           Flexible(
@@ -119,14 +121,13 @@ class ContractCard extends StatelessWidget {
                           Flexible(
                             child: ElevatedButton(
                               onPressed: () {
-                                final route = contract.status == ContractStatus.active
+                                final route = statusEnum == ContractStatus.active
                                     ? ContractsRoutes.status
                                     : ContractsRoutes.signature;
-                                Navigator.pushNamed(context, route,
-                                    arguments: contract.id);
+                                Navigator.pushNamed(context, route, arguments: contract.id);
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: contract.status == ContractStatus.active
+                                backgroundColor: statusEnum == ContractStatus.active
                                     ? const Color(0xFFF06915)
                                     : Colors.black87,
                                 shape: RoundedRectangleBorder(
@@ -134,7 +135,7 @@ class ContractCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                contract.status == ContractStatus.active
+                                statusEnum == ContractStatus.active
                                     ? AppStrings.reviewButton
                                     : AppStrings.signatureButton,
                               ),
@@ -148,20 +149,18 @@ class ContractCard extends StatelessWidget {
               ],
             ),
           ),
-
-          // FRANJA DE ESTADO
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: _statusColor(contract.status),
+              color: _statusColor(statusEnum),
               borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(AppSizes.borderRadius),
               ),
             ),
             alignment: Alignment.center,
             child: Text(
-              contract.status.displayName.toUpperCase(),
+              statusEnum.displayName.toUpperCase(),
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,

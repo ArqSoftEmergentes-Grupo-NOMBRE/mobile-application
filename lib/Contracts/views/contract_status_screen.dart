@@ -1,5 +1,3 @@
-// lib/contracts/views/contract_status_screen.dart
-
 import 'package:flutter/material.dart';
 import '../../shared/constants/app_sizes.dart';
 import '../services/contract_service.dart';
@@ -23,13 +21,13 @@ class ContractStatusScreen extends StatelessWidget {
             return Center(child: Text('Error: ${snap.error}'));
           }
           final contract = snap.data!;
-          if (contract.milestones.isEmpty) {
-            return const Center(child: Text('No hay hitos definidos.'));
+          if (contract.deliverables.isEmpty) {
+            return const Center(child: Text('No hay entregables definidos.'));
           }
 
-          // Para ilustración: tomamos el primer hito como "próximo"
-          final milestone = contract.milestones.first;
-          final date = milestone.deadline.toLocal().toString().split(' ')[0];
+          // Para ilustración: tomamos el primer entregable como "próximo"
+          final deliverable = contract.deliverables.first;
+          final fecha = deliverable.fechaEntregaEsperada?.toLocal().toString().split(' ')[0] ?? 'Sin fecha';
 
           return Padding(
             padding: const EdgeInsets.all(AppSizes.paddingM),
@@ -42,13 +40,13 @@ class ContractStatusScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Próximo Hito:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Próximo entregable:', style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
-                    Text(milestone.description, style: const TextStyle(fontSize: 18)),
+                    Text(deliverable.titulo, style: const TextStyle(fontSize: 18)),
                     const SizedBox(height: 8),
-                    Text('Fecha límite: $date'),
+                    Text('Fecha esperada: $fecha'),
                     const SizedBox(height: 8),
-                    Text('Monto: \$${milestone.amount.toStringAsFixed(2)}'),
+                    Text('Monto: \$${(deliverable.precio ?? 0).toStringAsFixed(2)}'),
                   ],
                 ),
               ),

@@ -1,5 +1,3 @@
-// lib/contracts/views/contract_signature_screen.dart
-
 import 'package:flutter/material.dart';
 import '../../shared/constants/app_sizes.dart';
 import '../services/contract_service.dart';
@@ -22,6 +20,7 @@ class ContractSignatureScreen extends StatelessWidget {
           if (snap.hasError) {
             return Center(child: Text('Error: ${snap.error}'));
           }
+
           final c = snap.data!;
 
           return Padding(
@@ -29,23 +28,28 @@ class ContractSignatureScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Mostramos título y descripción (porque clientName no existe)
                 Text(
-                  c.projectTitle,
+                  'Contrato #${c.id}',
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                Text(c.projectDescription),
+                Text('Estado: ${c.status}'),
+                const SizedBox(height: 8),
+                Text('Client ID: ${c.clientId}'),
+                Text('Developer ID: ${c.developerId}'),
+                Text('WebService ID: ${c.webServiceId}'),
                 const Divider(),
                 const SizedBox(height: 8),
 
-                // Placeholder para la sección de firma
                 const Text(
                   'Firma digital:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text('(Aquí se mostrará la firma o hash asociado)'),
+                Text(
+                  c.contractExplorerUrl ?? '(No disponible)',
+                  style: const TextStyle(color: Colors.blueAccent),
+                ),
               ],
             ),
           );

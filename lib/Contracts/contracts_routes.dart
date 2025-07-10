@@ -31,17 +31,7 @@ class ContractsRoutes {
     developer: (_) => const ContractDeveloperScreen(),
 
     /* PASO 2: Crear contrato */
-    create: (ctx) {
-      final args = ModalRoute.of(ctx)?.settings.arguments;
-      if (args is Map<String, dynamic> && args['developerId'] is String) {
-        return ContractCreateScreen(
-          developerId: args['developerId'] as String,
-        );
-      }
-      return const Scaffold(
-        body: Center(child: Text('Argumentos inválidos')),
-      );
-    },
+    create: (_) => const ContractCreateScreen(), // ✅ SIN argumentos
 
     /* PASO 3: Definir hitos/pagos */
     payments: (ctx) {

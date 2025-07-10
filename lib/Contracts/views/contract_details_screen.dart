@@ -4,6 +4,7 @@ import '../../shared/constants/app_sizes.dart';
 import '../../shared/constants/app_strings.dart';
 import '../models/contract.dart';
 import '../models/enums.dart';
+import '../models/deliverable.dart';
 import '../services/contract_service.dart';
 
 class ContractDetailsScreen extends StatelessWidget {
@@ -23,34 +24,65 @@ class ContractDetailsScreen extends StatelessWidget {
           if (snap.hasError) {
             return Center(child: Text('Error: ${snap.error}'));
           }
+
           final contract = snap.data!;
-          final total = contract.milestones.fold<double>(
-              0, (sum, m) => sum + m.amount);
+          final total = contract.deliverables.fold<double>(
+            0,
+                (sum, d) => sum + (d.precio ?? 0),
+          );
+
           return Padding(
             padding: const EdgeInsets.all(AppSizes.paddingM),
             child: ListView(
               children: [
-                Text(contract.projectTitle,
-                    style: Theme.of(context).textTheme.headlineSmall),
+                Text(
+                  'Contrato #${contract.id}',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
                 const SizedBox(height: AppSizes.paddingS),
-                Text(contract.projectDescription),
-                const SizedBox(height: AppSizes.paddingM),
-                const Text('Hitos:', style: TextStyle(fontWeight: FontWeight.bold)),
-                ...contract.milestones.map((m) => ListTile(
-                  title: Text(m.description),
-                  subtitle: Text(
-                      'Fecha límite: ${m.deadline.toLocal().toIso8601String().split('T')[0]}'),
-                  trailing: Text('\$${m.amount.toStringAsFixed(2)}'),
+                Text('Estado: ${contract.status}'),
+                const SizedBox(height: AppSizes.paddingS),
+                Text('Developer ID: ${contract.developerId}'),
+                Text('WebService ID: ${contract.webServiceId}'),
+                if (contract.contractExplorerUrl != null) ...[
+                  const SizedBox(height: AppSizes.paddingS),
+                  Text(
+                    'Explorador: ${contract.contractExplorerUrl}',
+                    style: const TextStyle(color: Colors.blueAccent),
+                  ),
+                ],
+                const Divider(height: 32),
+                const Text('Entregables:',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: AppSizes.paddingS),
+
+                // Mostrar entregables
+                ...contract.deliverables.map((d) => ListTile(
+                  title: Text(d.titulo),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(d.descripcion),
+                      if (d.fechaEntregaEsperada != null)
+                        Text('Entrega esperada: '
+                            '${d.fechaEntregaEsperada!.toLocal().toIso8601String().split('T')[0]}'),
+                      Text('Estado: ${d.estado.name}'),
+                    ],
+                  ),
+                  trailing: Text('\$${(d.precio ?? 0).toStringAsFixed(2)}'),
                 )),
-                const Divider(),
+
+                const Divider(height: 32),
                 Text('Total: \$${total.toStringAsFixed(2)}',
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: AppSizes.paddingM),
-                if (contract.status == ContractStatus.pending)
+
+                // Botón para firmar si el contrato está pendiente
+                if (contract.status.toLowerCase() == 'pending')
                   PrimaryButton(
                     text: 'Firmar contrato',
                     onPressed: () async {
-                      await ContractService().signContract(contract.id!);
+                      await ContractService().signContract(contract.id);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Contrato firmado.')),
                       );

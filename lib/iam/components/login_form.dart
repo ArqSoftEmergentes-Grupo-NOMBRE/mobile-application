@@ -3,8 +3,6 @@ import '../../shared/components/custom_textfield.dart';
 import '../../shared/components/primary_button.dart';
 import '../../shared/utils/validators.dart';
 import '../../shared/constants/app_strings.dart';
-import '../services/auth_service.dart';
-import '../models/auth_request.dart';
 import '../../contracts/contracts_routes.dart';
 
 class LoginForm extends StatefulWidget {
@@ -25,25 +23,24 @@ class _LoginFormState extends State<LoginForm> {
 
     setState(() => _isLoading = true);
 
-    final request = AuthRequest(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
-    );
+    await Future.delayed(const Duration(seconds: 1)); // Simulación de espera
 
-    try {
-      final success = await AuthService().login(request);
-      if (success && mounted) {
-        Navigator.pushReplacementNamed(context, ContractsRoutes.list);
-      }
-    } catch (e) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    // Simula login con cualquier combinación válida
+    if (email.isNotEmpty && password.isNotEmpty) {
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, ContractsRoutes.list);
+    } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+          const SnackBar(content: Text('Credenciales inválidas')),
         );
       }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
     }
+
+    if (mounted) setState(() => _isLoading = false);
   }
 
   @override
