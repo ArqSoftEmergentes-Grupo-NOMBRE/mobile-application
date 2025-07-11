@@ -1,7 +1,6 @@
-# Tarket Contracts – Flutter Mobile App + Fake API
+# Tarket Contracts – Flutter Mobile App
 
-Este repositorio contiene el código fuente principal de la aplicación móvil **Tarket Contracts**, orientada a profesionales que buscan crear contratos digitales con desarrolladores. También incluye una API falsa (`fake-api/`) utilizada para pruebas locales sin necesidad de conexión a un backend real.
-
+Este repositorio contiene el código fuente principal de la aplicación móvil **Tarket Contracts**, orientada a profesionales que buscan crear contratos digitales con desarrolladores. También incluye una API falsa (`fake-api/`) utilizada para conexion a nuestro backend.
 ---
 
 ##  Estructura del Repositorio base
@@ -13,10 +12,6 @@ Este repositorio contiene el código fuente principal de la aplicación móvil *
 │   ├── IAM/
 │   └── shared/
 ├── assets/   
-├── fake-api/ 
-│   ├── package.json
-│   ├── package-lock.json
-│   └── server.js
 ├── analysis\_options.yaml  
 ├── pubspec.yaml    
 └── README.md  
@@ -51,18 +46,6 @@ flutter create .
 Esto generará las carpetas faltantes como `android/`, `ios/`, `web/`, etc.
 
 > Asegúrate de no sobrescribir `lib/`, `assets/` ni `pubspec.yaml` si `flutter create .` lo solicita.
-
----
-
-### 3. Levanta la fake API (Node.js)
-
-```bash
-cd fake-api
-npm install
-node server.js
-```
-
-Esto inicia un servidor en `http://localhost:3000/` con rutas simuladas para pruebas.
 
 ---
 
