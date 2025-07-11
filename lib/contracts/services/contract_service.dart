@@ -61,4 +61,13 @@ class ContractService implements IContractService {
       throw Exception('Error al crear contrato: ${res.body}');
     }
   }
+
+  @override
+  Future<void> finalizeContract(String id) async {
+    final res = await HttpClient.post('$_basePath/$id/finalize', {});
+    if (res.statusCode != 200) {
+      throw Exception('Error finalizando contrato: ${res.body}');
+    }
+  }
+
 }

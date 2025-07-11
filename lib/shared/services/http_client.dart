@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class HttpClient {
   static final String baseUrl = Platform.isAndroid
       ? 'http://10.0.2.2:8080'
-      : 'http://localhost:8080';
+      : 'http://10.0.2.2:8080';
   //  static const String baseUrl = 'https://api.tarketcontracts.com';
 
   /// Recupera el token de sesión

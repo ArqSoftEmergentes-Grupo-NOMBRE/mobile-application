@@ -14,7 +14,7 @@ class TarketApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Tarket Contracts',
+      title: 'Tarket contracts',
       theme: AppTheme.darkTheme,
       initialRoute: AuthRoutes.login,
       routes: {

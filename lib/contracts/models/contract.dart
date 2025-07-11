@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:sample1/Contracts/models/deliverable.dart';
+import '../models/deliverable.dart';
 
 class Contract extends Equatable {
   final String id;
