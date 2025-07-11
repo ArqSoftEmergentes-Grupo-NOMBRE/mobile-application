@@ -1,6 +1,7 @@
 # Tarket Contracts – Flutter Mobile App
 
 Este repositorio contiene el código fuente principal de la aplicación móvil **Tarket Contracts**, orientada a profesionales que buscan crear contratos digitales con desarrolladores. También incluye una API falsa (`fake-api/`) utilizada para conexion a nuestro backend.
+
 ---
 
 ##  Estructura del Repositorio base
